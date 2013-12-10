@@ -47,8 +47,6 @@ The process can be roughly decomposed as follow:
     }
 ```
 
-> Remember, that definition of the push method was sent in the skeleton, now simply flushing a line with `pipeline.push()` in a `<script>` tag makes the client execute the `pipeline.push` function.
-
 ## So what do you get for free (almost)?
 This approach has several advantages.
 * It decreases the user perceived latency: now the logo, the search box and all the static stuff that will be there all the time can be sent immediately and the user can start typing instead of staring into cold nothingness.
