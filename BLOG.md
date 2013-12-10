@@ -1,4 +1,4 @@
-# Scheduled Rendering and Pipelining in Latency Sensitive Web Applications ([Mojito Pipeline](https://github.com/yahoo/mojito-pipeline))
+# Scheduled Rendering and Pipelining in Latency Sensitive Web Applications - [Mojito Pipeline](https://github.com/yahoo/mojito-pipeline)
 
 Rendering views for a web app that has less than trivial backends can quickly become problematic as the app most often ends up holding onto resources waiting for the full response from all backend. This is acceptable when all backends are reasonably quick, but otherwise it can become a strategic painpoint that monopolizes memory, hangs the user's connection for seconds with nothing else than a blank page and an idle connection.
 At Yahoo Search, we depend on several backends that forced us to become creative if we wanted to step up end-to-end performance. To decrease perceived latency, even-out bandwith usage and free-up front-end memory faster, we decided to adopt an approach that facebook detailed in [this post](https://www.facebook.com/note.php?note_id=389414033919).
@@ -9,6 +9,7 @@ The process can be roughly decomposed as follow:
 
 1. A request arrives, the page is split into small - coherent sections and we request information for all of them to the backends.
 1. In the meantime, we start sending a "skeleton" of page to the client that will place rendered mojits in their empty spots when they arrive. Something like this:
+
 ```html
 <html><head><!-- static assets, etc.. --></head>
 <body>
@@ -18,25 +19,34 @@ The process can be roughly decomposed as follow:
      */
     var pipeline = ...
     </script>
-    <div id="section1"></div>
-    <div id="section2"></div>
+    <div id="section1"><!-- this is an empty slot--></div>
+    <div id="section2"><!-- this is an empty slot--></div>
 ```
-Notice how the `<body>` tag is not closed.
+
+> Notice how the `<body>` tag is not closed.
+
 1. The backends start responding with the requested data. As soon as a mojit gets the data it needs from the backend, it is rendered with it on the front-end and _flushed as soon as possible_ to the client like so:
+
 ```javascript
-    response.write('<script>pipeline.push({
-        id: "section47",
-        markup: "<div>Hello, this is rendered section 1!!</div>"
-    })</script>');
+    var markup = renderMojit(backendData);
+    // here, markup == "<div>Hello, this is rendered section 1!!</div>"
+    response.write('<script>pipeline.push({' +
+        'id: "section47",' + 
+        'markup: ' + markup +
+    '})</script>');
 ```
 
 1. The skeleton receives the markup, inserts and displays it in the right spot on the page like so:
+
 ```javascript
     pipeline.push = function (sectionObject) {
         window.getelementbyid(sectionObject.id).insertBefore(sectionObject.markup);
     }
 ```
 
+> Remember, that definition of the push method was sent in the skeleton, now simply flushing a line with `pipeline.push()` in the `<script>` tag makes the client execute the `pipeline.push` function.
+
+## What you get for free (almost)
 This approach has several advantages.
 * It decreases the user perceived latency: now the logo, the search box and all the static stuff that will be there all the time can be sent immediately and the user can start typing instead of staring into cold nothingness.
 * It optimizes bandwidth usage: by flushing early our faster independant sections, we anticipate by clearing out the pipe early for when that last slow section arrives - we increase throughput.
