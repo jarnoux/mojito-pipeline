@@ -8,6 +8,7 @@ Our goal is to be able to send sections of the page to the client as soon as the
 The process can be roughly decomposed as follow:
 
 **Step 1.** A request arrives, the page is split into small - coherent sections (called _mojits_) and we request information for all of them to the backends.
+
 **Step 2.** In the meantime, we start sending a "skeleton" of page to the client that will place rendered mojits in their empty spots when they arrive. Something like this:
 
 ```html
