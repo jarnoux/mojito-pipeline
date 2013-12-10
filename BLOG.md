@@ -7,18 +7,19 @@ At Yahoo Search, we depend on several backends that forced us to become creative
 Our goal is to be able to send sections of the page to the client as soon as they are ready on the front end, so the total time to transmit the last byte of the response would be significantly lower.
 The process can be roughly decomposed as follow:
 
-1. A request arrives, the page is split into small - coherent sections and we request information for all of them to the backends.
-1. In the meantime, we start sending a "skeleton" of page to the client that will place rendered mojits in their empty spots when they arrive. Something like this:
+1. A request arrives, the page is split into small - coherent sections (called _mojits_) and we request information for all of them to the backends.
+2. In the meantime, we start sending a "skeleton" of page to the client that will place rendered mojits in their empty spots when they arrive. Something like this:
 
 ```html
 <html>
     <head><!-- static assets, etc.. --></head>
     <body>
         <script type="text/javascript">
-        /**
-         * pipeline client that knows how to insert incoming markup.
-         */
-        var pipeline = ...
+            /**
+             * pipeline client that knows how to insert incoming markup.
+             */
+            var pipeline = ...
+            pipeline.push = function (sectionObject) { ...
         </script>
         <div id="section1"><!-- this is an empty slot--></div>
         <div id="section2"><!-- this is an empty slot--></div>
@@ -26,18 +27,18 @@ The process can be roughly decomposed as follow:
 
 > Notice how the `<body>` tag is not closed.
 
-1. The backends start responding with the requested data. As soon as a mojit gets the data it needs from the backend, it is rendered with it on the front-end and _flushed as soon as possible_ to the client like so:
+3. The backends start responding with the requested data. As soon as a mojit gets the data it needs from the backend, it is rendered with it on the front-end and a script tag is _flushed as soon as possible_ to the client, something like:
 
-```javascript
-    var markup = renderMojit(backendData);
-    // here, markup == "<div>Hello, this is rendered section 1!!</div>"
-    response.write('<script>pipeline.push({' +
-        'id: "section47",' + 
-        'markup: ' + markup +
-    '})</script>');
+```html
+    <script>
+        pipeline.push({
+            id: "section47"
+            markup: "<div>Hello, this is rendered section 1!!</div>"
+        });
+    </script>
 ```
 
-1. The skeleton receives the markup, inserts and displays it in the right spot on the page like so:
+4. The skeleton receives the markup, inserts and displays it in the right spot on the page. Remember the definition of `pipeline.push` in the skeleton of step 1? It does something like this:
 
 ```javascript
     pipeline.push = function (sectionObject) {
@@ -45,9 +46,9 @@ The process can be roughly decomposed as follow:
     }
 ```
 
-> Remember, that definition of the push method was sent in the skeleton, now simply flushing a line with `pipeline.push()` in the `<script>` tag makes the client execute the `pipeline.push` function.
+> Remember, that definition of the push method was sent in the skeleton, now simply flushing a line with `pipeline.push()` in a `<script>` tag makes the client execute the `pipeline.push` function.
 
-## What you get for free (almost)
+## So what do you get for free (almost)?
 This approach has several advantages.
 * It decreases the user perceived latency: now the logo, the search box and all the static stuff that will be there all the time can be sent immediately and the user can start typing instead of staring into cold nothingness.
 * It optimizes bandwidth usage: by flushing early our faster independant sections, we anticipate by clearing out the pipe early for when that last slow section arrives - we increase throughput.
@@ -56,5 +57,5 @@ This approach has several advantages.
 
 ![graphical representation of pipelining]()
 
-## Okay, I'm pretty sure this is really cool - how do I get that?
-You're in luck: we made this stuff open-source and free (like in beer and like in speech) for our favorite Node.js app-framework at Search: [mojito](http://developer.yahoo.com/cocktails/mojito/). Mojito makes it easy to split your page into sections or "mojits" (which is also useful for reusability, maintainability, and overall spiritual wellness). We made it a package you can find [here](https://github.com/yahoo/mojito-pipeline), and you will be abe to see how to get ninja powers with complex scheduling, dependencies between sections, conditional rules and more.
+## Okay, I'm pretty sure this is awesome - how do I get it?
+You're in luck: we made this stuff open-source and free (like in beer and like in speech) for our favorite Node.js app-framework at Search: [mojito](http://developer.yahoo.com/cocktails/mojito/). Mojito makes it easy to split your page into sections or "mojits" (which is also useful for reusability, maintainability, and overall spiritual wellness). We made it a package you can find [here](https://github.com/yahoo/mojito-pipeline), and you will be abe to see how to get ninja powers with complex scheduling, dependencies between sections, conditional rules and more!
