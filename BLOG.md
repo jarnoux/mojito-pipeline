@@ -11,16 +11,17 @@ The process can be roughly decomposed as follow:
 1. In the meantime, we start sending a "skeleton" of page to the client that will place rendered mojits in their empty spots when they arrive. Something like this:
 
 ```html
-<html><head><!-- static assets, etc.. --></head>
-<body>
-    <script type="text/javascript">
-    /**
-     * pipeline client that knows how to insert incoming markup.
-     */
-    var pipeline = ...
-    </script>
-    <div id="section1"><!-- this is an empty slot--></div>
-    <div id="section2"><!-- this is an empty slot--></div>
+<html>
+    <head><!-- static assets, etc.. --></head>
+    <body>
+        <script type="text/javascript">
+        /**
+         * pipeline client that knows how to insert incoming markup.
+         */
+        var pipeline = ...
+        </script>
+        <div id="section1"><!-- this is an empty slot--></div>
+        <div id="section2"><!-- this is an empty slot--></div>
 ```
 
 > Notice how the `<body>` tag is not closed.
