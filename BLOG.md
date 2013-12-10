@@ -43,7 +43,7 @@ The process can be roughly decomposed as follow:
 
 ```javascript
     pipeline.push = function (sectionObject) {
-        window.getelementbyid(sectionObject.id).insertBefore(sectionObject.markup);
+        window.getelementbyid(sectionObject.id).insert(sectionObject.markup);
     }
 ```
 
