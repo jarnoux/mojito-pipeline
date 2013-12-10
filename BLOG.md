@@ -33,7 +33,7 @@ The process can be roughly decomposed as follow:
 ```html
     <script>
         pipeline.push({
-            id: "section47"
+            id: "section1"
             markup: "<div>Hello, this is rendered section 1!!</div>"
         });
     </script>
