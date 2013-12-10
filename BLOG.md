@@ -47,11 +47,12 @@ The process can be roughly decomposed as follow:
     }
 ```
 
-**Step 5.** When the frontend knows it is done with all the sections and there are no more `<script>` tags to send, it sends the closing tags and end the connection:
+**Step 5.** When the frontend knows it is done with all the sections and there are no more `<script>` tags to send, it sends the closing tags and closes the connection:
 
 ```html
     </body>
 </html>
+
 ```
 
 ## So what do you get for free (almost)?
