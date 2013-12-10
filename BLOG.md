@@ -27,6 +27,7 @@ The process can be roughly decomposed as follow:
 ```
 
 > Notice how the `<body>` tag is not closed.
+
 > Also notice the `<script>` tag, it has all the logic that it needs to handle sections arriving from the server.
 
 **Step 3.** The backends start responding with the requested data. Everytime a mojit gets the data it needs from the backend, it is rendered with it on the front-end and a `<script>` tag is flushed as soon as possible to the client. Something like:
