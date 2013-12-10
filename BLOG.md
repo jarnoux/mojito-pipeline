@@ -28,7 +28,7 @@ The process can be roughly decomposed as follow:
 
 > Notice how the `<body>` tag is not closed.
 
-**Step 3.** The backends start responding with the requested data. As soon as a mojit gets the data it needs from the backend, it is rendered with it on the front-end and a script tag is _flushed as soon as possible_ to the client, something like:
+**Step 3.** The backends start responding with the requested data. Everytime a mojit gets the data it needs from the backend, it is rendered with it on the front-end and a script tag is flushed as soon as possible to the client. Something like:
 
 ```html
     <script>
@@ -47,7 +47,7 @@ The process can be roughly decomposed as follow:
     }
 ```
 
-**Step 5.** When the frontend knows it is done sending with all the sections and there are no more `<script>` tags to send, it sends the closing tags and end the connection:
+**Step 5.** When the frontend knows it is done with all the sections and there are no more `<script>` tags to send, it sends the closing tags and end the connection:
 
 ```html
     </body>
