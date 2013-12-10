@@ -1,13 +1,13 @@
 # Scheduled Rendering and Pipelining in Latency Sensitive Web Applications - [Mojito Pipeline](https://github.com/yahoo/mojito-pipeline)
 
-Rendering views for a web app that has less than trivial backends can quickly become problematic as the app most often ends up holding onto resources waiting for the full response from all backend. This is acceptable when all backends are reasonably quick, but otherwise it can become a strategic painpoint that monopolizes memory, hangs the user's connection for seconds with nothing else than a blank page and an idle connection.
-At Yahoo Search, we depend on several backends that forced us to become creative if we wanted to step up end-to-end performance. To decrease perceived latency, even-out bandwith usage and free-up front-end memory faster, we decided to adopt an approach that facebook detailed in [this post](https://www.facebook.com/note.php?note_id=389414033919).
+Rendering views for a web app that has less than trivial backends can quickly become problematic as the app may end up holding onto resources, waiting for the full response from all backends. This is acceptable when all backends are reasonably quick, but otherwise it can become a strategic painpoint that monopolizes memory, hanging the user's connection for seconds with nothing else than a blank page and an idle connection.
+At Yahoo Search, our dependence on several backends forced us to become creative to step up end-to-end performance. To decrease perceived latency, even-out bandwith usage and free-up front-end memory faster, we decided to adopt an approach that Facebook detailed in [this post](https://www.facebook.com/note.php?note_id=389414033919).
 
 ## Web page pipelining: the basics
 Our goal is to be able to send sections of the page to the client as soon as they are ready on the front end, so the total time to transmit the last byte of the response would be significantly lower.
-The process can be roughly decomposed as follow:
+The process can be roughly decomposed as follows:
 
-**Step 1.** A request arrives, the page is split into small - coherent sections (called _mojits_) and we request information for them if needed to the backends.
+**Step 1.** A request arrives, the page is split into small - coherent sections (called _mojits_) and we request information from the backends if needed.
 
 **Step 2.** In the meantime, we start sending a "skeleton" of page to the client that will place rendered mojits in their empty slots when they arrive. Something like this:
 
@@ -28,8 +28,6 @@ The process can be roughly decomposed as follow:
 
 > Notice how the `<body>` tag is not closed.
 
-> Also notice the `<script>` tag, it has all the logic the skeleton needs to handle sections arriving from the server.
-
 **Step 3.** The backends start responding with the requested data. Everytime a mojit gets the data it needs from the backend, it is rendered with it on the front-end and a `<script>` tag is flushed as soon as possible to the client. Something like:
 
 ```html
@@ -45,7 +43,7 @@ The process can be roughly decomposed as follow:
 
 ```javascript
     pipeline.push = function (sectionObject) {
-        window.getelementbyid(sectionObject.id).insertHTML(sectionObject.markup);
+        window.getElementById(sectionObject.id).insertHTML(sectionObject.markup);
     }
 ```
 
@@ -60,7 +58,7 @@ The process can be roughly decomposed as follow:
 ## So what do you get for free (almost)?
 This approach has several advantages.
 * It decreases the user perceived latency: now the logo, the search box and all the static stuff that will be there all the time can be sent immediately and the user can start typing instead of staring into cold nothingness.
-* It optimizes bandwidth usage: by flushing early our faster independant sections, we anticipate by clearing out the pipe early for when that last slow section arrives - we increase throughput.
+* It optimizes bandwidth usage: by flushing early our faster independant sections, we anticipate by clearing out the pipe early for when that last slow section arrives-- we increase throughput.
 * It optimizes last-byte latency: "clearing out the pipe" also means that last packet will be a lot smaller and faster to transmit if it contains only the slowest, last section.
 * It optimizes memory usage: by flushing early, we don't have to hold onto the data of the faster sections and we can use that memory do do something more useful.
 
