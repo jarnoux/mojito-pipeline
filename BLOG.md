@@ -47,6 +47,13 @@ The process can be roughly decomposed as follow:
     }
 ```
 
+**Step 5.** When the frontend knows it is done sending with all the sections and there are no more `<script>` tags to send, it sends the closing tags and end the connection:
+
+```html
+    </body>
+</html>
+```
+
 ## So what do you get for free (almost)?
 This approach has several advantages.
 * It decreases the user perceived latency: now the logo, the search box and all the static stuff that will be there all the time can be sent immediately and the user can start typing instead of staring into cold nothingness.
