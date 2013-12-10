@@ -7,8 +7,8 @@ At Yahoo Search, we depend on several backends that forced us to become creative
 Our goal is to be able to send sections of the page to the client as soon as they are ready on the front end, so the total time to transmit the last byte of the response would be significantly lower.
 The process can be roughly decomposed as follow:
 
-1. A request arrives, the page is split into small - coherent sections (called _mojits_) and we request information for all of them to the backends.
-2. In the meantime, we start sending a "skeleton" of page to the client that will place rendered mojits in their empty spots when they arrive. Something like this:
+Step 1. A request arrives, the page is split into small - coherent sections (called _mojits_) and we request information for all of them to the backends.
+Step 2. In the meantime, we start sending a "skeleton" of page to the client that will place rendered mojits in their empty spots when they arrive. Something like this:
 
 ```html
 <html>
@@ -27,7 +27,7 @@ The process can be roughly decomposed as follow:
 
 > Notice how the `<body>` tag is not closed.
 
-3. The backends start responding with the requested data. As soon as a mojit gets the data it needs from the backend, it is rendered with it on the front-end and a script tag is _flushed as soon as possible_ to the client, something like:
+Step 3. The backends start responding with the requested data. As soon as a mojit gets the data it needs from the backend, it is rendered with it on the front-end and a script tag is _flushed as soon as possible_ to the client, something like:
 
 ```html
     <script>
@@ -38,7 +38,7 @@ The process can be roughly decomposed as follow:
     </script>
 ```
 
-4. The skeleton receives the markup, inserts and displays it in the right spot on the page. Remember the definition of `pipeline.push` in the skeleton of step 1? It does something like this:
+Step 4. The skeleton receives the markup, inserts and displays it in the right spot on the page. Remember the definition of `pipeline.push` in the skeleton of step 1? It does something like this:
 
 ```javascript
     pipeline.push = function (sectionObject) {
