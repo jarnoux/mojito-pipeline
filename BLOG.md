@@ -1,15 +1,15 @@
 # Scheduled Rendering and Pipelining in Latency Sensitive Web Applications - [Mojito Pipeline](https://github.com/yahoo/mojito-pipeline)
 
-Rendering views for a web app that has less than trivial backends can quickly become problematic as the app may end up holding onto resources, waiting for the full response from all backends. This is acceptable when all backends are reasonably quick, but otherwise it can become a strategic painpoint that monopolizes memory, hanging the user's connection for seconds with nothing else than a blank page and an idle connection.
-At Yahoo Search, our dependence on several backends forced us to become creative to step up end-to-end performance. To decrease perceived latency, even-out bandwith usage and free-up front-end memory faster, we decided to adopt an approach that Facebook detailed in [this post](https://www.facebook.com/note.php?note_id=389414033919).
+Rendering views for a web app that has less than trivial backends can quickly become problematic as the app may end up holding onto resources, while waiting for the full response from all backends. This is acceptable when all backends are reasonably quick, but otherwise it can become a strategic pain point that monopolizes memory, hanging the user's connection for seconds with nothing else than a blank page and an idle connection.
+At Yahoo Search, our dependence on several backends forced us to become creative to step up end-to-end performance. To decrease perceived latency, even-out bandwith usage and free-up front-end memory faster, we decided to adopt an approach similar to what Facebook detailed in [this post](https://www.facebook.com/note.php?note_id=389414033919).
 
 ## Web page pipelining: the basics
-Our goal is to be able to send sections of the page to the client as soon as they are ready on the front end, so the total time to transmit the last byte of the response would be significantly lower.
+Our goal is to be able to send sections of the page to the client as soon as they are ready on the frontend, so the total time to transmit the last byte of the response is significantly shorter.
 The process can be roughly decomposed as follows:
 
-**Step 1.** A request arrives, the page is split into small - coherent sections (called _mojits_) and we request information from the backends if needed.
+**Step 1.** When a request arrives, the page is divided into small, coherent sections (called _mojits_) and data is requested from the backends if necessary.
 
-**Step 2.** In the meantime, we start sending a "skeleton" of page to the client that will place rendered mojits in their empty slots when they arrive. Something like this:
+**Step 2.** At the same time, the frontend sends the client a template of page containing empty placeholders to be filled by sections as they get flushed. Something like this:
 
 ```html
 <html>
@@ -28,7 +28,7 @@ The process can be roughly decomposed as follows:
 
 > Notice how the `<body>` tag is not closed.
 
-**Step 3.** The backends start responding with the requested data. Everytime a mojit gets the data it needs from the backend, it is rendered with it on the front-end and a `<script>` tag is flushed as soon as possible to the client. Something like:
+**Step 3.** The backends start responding with the requested data. Once the data that a section needs arrives, the mojit is rendered and serialized within a `<script>` block that is flushed to the client as soon as possible. Something like:
 
 ```html
     <script>
@@ -39,7 +39,7 @@ The process can be roughly decomposed as follows:
     </script>
 ```
 
-**Step 4.** The skeleton receives the markup, inserts and displays it in the right spot on the page. Remember the definition of `pipeline.push` in the skeleton of step 1? It does something like this:
+**Step 4.** The client receives the script block containing the serialized section, and executes the script, which inserts the section into its corresponding placeholder on the page. Remember the definition of `pipeline.push` in the skeleton of step 1? It does something like this:
 
 ```javascript
     pipeline.push = function (sectionObject) {
@@ -47,7 +47,7 @@ The process can be roughly decomposed as follows:
     }
 ```
 
-**Step 5.** When the frontend knows it is done with all the sections and there are no more `<script>` tags to send, it sends the closing tags and closes the connection:
+**Step 5.** Once the frontend is done rendering all the sections and there are no more `<script>` blocks to send, it sends the closing tags to the client and closes the connection:
 
 ```html
     </body>
@@ -65,4 +65,4 @@ This approach has several advantages.
 ![graphical representation of pipelining]()
 
 ## Okay, I'm pretty sure this is awesome - how do I get it?
-You're in luck: we made this stuff open-source and free (as in beer and as in speech) for our favorite Node.js app-framework at Search: [mojito](http://developer.yahoo.com/cocktails/mojito/). Mojito makes it easy to split your page into sections or "mojits" (which is also useful for reusability, maintainability, and overall spiritual wellness). We made it a package you can find [here](https://github.com/yahoo/mojito-pipeline), and you will be abe to see how to get ninja powers with complex scheduling, dependencies between sections, conditional rules and more!
+You're in luck: we made this stuff open-source and free (as in beer and as in speech) for our favorite Node.js app-framework at Search: [mojito](http://developer.yahoo.com/cocktails/mojito/). Mojito makes it easy to divide your page into sections or "mojits" (which is also useful for reusability, maintainability, and overall spiritual wellness). We made it a package you can find [here](https://github.com/yahoo/mojito-pipeline), and you will be able to see how to get ninja powers with complex scheduling, dependencies between sections, conditional rules and more!
