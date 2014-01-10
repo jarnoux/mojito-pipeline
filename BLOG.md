@@ -66,3 +66,5 @@ This approach has several advantages.
 
 ## Okay, I'm pretty sure this is awesome - how do I get it?
 You're in luck: we made this stuff open-source and free (as in beer and as in speech) for our favorite Node.js app-framework at Search: [mojito](http://developer.yahoo.com/cocktails/mojito/). Mojito makes it easy to divide your page into sections or "mojits" (which is also useful for reusability, maintainability, and overall spiritual wellness). We made it a package you can find [here](https://github.com/yahoo/mojito-pipeline), and you will be able to see how to get ninja powers with complex scheduling, dependencies between sections, conditional rules and more!
+
+*Jacques Arnoux (arnoux [at] yahoo-inc [dot] com) & Albert Jimenez (jimenez [at] yahoo-inc [dot] com) for Yahoo! Search Front-End Platform*
